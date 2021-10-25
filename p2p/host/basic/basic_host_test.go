@@ -723,7 +723,7 @@ func TestHostAddrChangeDetection(t *testing.T) {
 	require.NoError(t, err)
 	defer sub.Close()
 
-	// wait for the host background thread to start
+	// wait for the host watchForAddrChanges thread to start
 	time.Sleep(1 * time.Second)
 	// host should start with no addrs (addrSet 0)
 	addrs := h.Addrs()

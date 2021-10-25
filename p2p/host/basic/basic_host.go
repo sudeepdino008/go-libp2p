@@ -89,8 +89,9 @@ type BasicHost struct {
 	negtimeout time.Duration
 
 	emitters struct {
-		evtLocalProtocolsUpdated event.Emitter
-		evtLocalAddrsUpdated     event.Emitter
+		evtLocalProtocolsUpdated    event.Emitter
+		evtLocalAddrsUpdated        event.Emitter
+		evtPeerConnectednessChanged event.Emitter
 	}
 
 	addrChangeChan chan struct{}
@@ -183,11 +184,10 @@ func NewHost(n network.Network, opts *HostOpts) (*BasicHost, error) {
 	if h.emitters.evtLocalAddrsUpdated, err = h.eventbus.Emitter(&event.EvtLocalAddressesUpdated{}, eventbus.Stateful); err != nil {
 		return nil, err
 	}
-	evtPeerConnectednessChanged, err := h.eventbus.Emitter(&event.EvtPeerConnectednessChanged{})
-	if err != nil {
+	if h.emitters.evtPeerConnectednessChanged, err = h.eventbus.Emitter(&event.EvtPeerConnectednessChanged{}); err != nil {
 		return nil, err
 	}
-	h.Network().Notify(newPeerConnectWatcher(evtPeerConnectednessChanged))
+	h.Network().Notify(newPeerConnectWatcher(h.emitters.evtPeerConnectednessChanged))
 
 	if !h.disableSignedPeerRecord {
 		cab, ok := peerstore.GetCertifiedAddrBook(n.Peerstore())
@@ -350,10 +350,11 @@ func (h *BasicHost) updateLocalIpAddr() {
 	}
 }
 
-// Start starts background tasks in the host
+// Start starts watchForAddrChanges tasks in the host
 func (h *BasicHost) Start() {
-	h.refCount.Add(1)
-	go h.background()
+	h.refCount.Add(2)
+	go h.watchForAddrChanges()
+	go h.gcPeerstore()
 }
 
 // newStreamHandler is the remote-opened stream handler for network.Network
@@ -459,7 +460,7 @@ func (h *BasicHost) makeSignedPeerRecord(evt *event.EvtLocalAddressesUpdated) (*
 	return record.Seal(rec, h.signKey)
 }
 
-func (h *BasicHost) background() {
+func (h *BasicHost) watchForAddrChanges() {
 	defer h.refCount.Done()
 	var lastAddrs []ma.Multiaddr
 
@@ -517,6 +518,28 @@ func (h *BasicHost) background() {
 		case <-h.addrChangeChan:
 		case <-h.ctx.Done():
 			return
+		}
+	}
+}
+
+func (h *BasicHost) gcPeerstore() {
+	defer h.refCount.Done()
+	sub, err := h.EventBus().Subscribe(&event.EvtPeerConnectednessChanged{})
+	if err != nil {
+		log.Warnw("failed to listen for peer connectedness changed events", "error", err)
+		return
+	}
+	defer sub.Close()
+	for {
+		// Note that this might shut down before the swarm has closed all connections.
+		select {
+		case <-h.ctx.Done():
+			return
+		case e := <-sub.Out():
+			ev := e.(event.EvtPeerConnectednessChanged)
+			if ev.Connectedness == network.NotConnected {
+				h.Peerstore().RemovePeer(ev.Peer)
+			}
 		}
 	}
 }
@@ -627,7 +650,7 @@ func (h *BasicHost) NewStream(ctx context.Context, p peer.ID, pids ...protocol.I
 		}, nil
 	}
 
-	// Negotiate the protocol in the background, obeying the context.
+	// Negotiate the protocol in the watchForAddrChanges, obeying the context.
 	var selected string
 	errCh := make(chan error, 1)
 	go func() {
@@ -1035,6 +1058,7 @@ func (h *BasicHost) Close() error {
 		_ = h.emitters.evtLocalProtocolsUpdated.Close()
 		_ = h.emitters.evtLocalAddrsUpdated.Close()
 		h.Network().Close()
+		_ = h.emitters.evtPeerConnectednessChanged.Close()
 
 		if h.Peerstore() != nil {
 			h.Peerstore().Close()
