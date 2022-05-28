@@ -96,7 +96,7 @@ type Swarm struct {
 	// down before continuing.
 	refs sync.WaitGroup
 
-	eventBus event.Bus
+	emitter event.Emitter
 
 	rcmgr network.ResourceManager
 
@@ -148,11 +148,15 @@ type Swarm struct {
 
 // NewSwarm constructs a Swarm.
 func NewSwarm(local peer.ID, peers peerstore.Peerstore, eventBus event.Bus, opts ...Option) (*Swarm, error) {
+	emitter, err := eventBus.Emitter(new(event.EvtPeerConnectednessChanged))
+	if err != nil {
+		return nil, err
+	}
 	ctx, cancel := context.WithCancel(context.Background())
 	s := &Swarm{
 		local:            local,
 		peers:            peers,
-		eventBus:         eventBus,
+		emitter:          emitter,
 		ctx:              ctx,
 		ctxCancel:        cancel,
 		dialTimeout:      defaultDialTimeout,
@@ -186,6 +190,8 @@ func (s *Swarm) Close() error {
 
 func (s *Swarm) close() {
 	s.ctxCancel()
+
+	s.emitter.Close()
 
 	// Prevents new connections and/or listeners from being added to the swarm.
 	s.listeners.Lock()
@@ -297,6 +303,7 @@ func (s *Swarm) addConn(tc transport.CapableConn, dir network.Direction) (*Conn,
 	}
 
 	c.streams.m = make(map[*Stream]struct{})
+	isFirstConn := len(s.conns.m[p]) == 0
 	s.conns.m[p] = append(s.conns.m[p], c)
 
 	// Add two swarm refs:
@@ -313,6 +320,13 @@ func (s *Swarm) addConn(tc transport.CapableConn, dir network.Direction) (*Conn,
 		f.Connected(s, c)
 	})
 	c.notifyLk.Unlock()
+
+	if isFirstConn {
+		s.emitter.Emit(event.EvtPeerConnectednessChanged{
+			Peer:          p,
+			Connectedness: network.Connected,
+		})
+	}
 
 	c.start()
 	return c, nil
@@ -577,13 +591,14 @@ func (s *Swarm) StopNotify(f network.Notifiee) {
 func (s *Swarm) removeConn(c *Conn) {
 	p := c.RemotePeer()
 
+	var disconnected bool
 	s.conns.Lock()
-	defer s.conns.Unlock()
 	cs := s.conns.m[p]
 	for i, ci := range cs {
 		if ci == c {
 			if len(cs) == 1 {
 				delete(s.conns.m, p)
+				disconnected = true
 			} else {
 				// NOTE: We're intentionally preserving order.
 				// This way, connections to a peer are always
@@ -592,8 +607,16 @@ func (s *Swarm) removeConn(c *Conn) {
 				cs[len(cs)-1] = nil
 				s.conns.m[p] = cs[:len(cs)-1]
 			}
-			return
+			break
 		}
+	}
+	s.conns.Unlock()
+
+	if disconnected {
+		s.emitter.Emit(event.EvtPeerConnectednessChanged{
+			Peer:          p,
+			Connectedness: network.NotConnected,
+		})
 	}
 }
 

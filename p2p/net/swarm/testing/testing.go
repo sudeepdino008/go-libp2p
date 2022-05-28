@@ -4,8 +4,6 @@ import (
 	"testing"
 	"time"
 
-	"github.com/libp2p/go-eventbus"
-
 	msmux "github.com/libp2p/go-libp2p/p2p/muxer/muxer-multistream"
 	"github.com/libp2p/go-libp2p/p2p/muxer/yamux"
 	csms "github.com/libp2p/go-libp2p/p2p/net/conn-security-multistream"
@@ -17,6 +15,7 @@ import (
 	"github.com/libp2p/go-libp2p-core/connmgr"
 	"github.com/libp2p/go-libp2p-core/control"
 	"github.com/libp2p/go-libp2p-core/crypto"
+	"github.com/libp2p/go-libp2p-core/event"
 	"github.com/libp2p/go-libp2p-core/metrics"
 	"github.com/libp2p/go-libp2p-core/network"
 	"github.com/libp2p/go-libp2p-core/peer"
@@ -24,6 +23,7 @@ import (
 	"github.com/libp2p/go-libp2p-core/sec/insecure"
 	"github.com/libp2p/go-libp2p-core/transport"
 
+	"github.com/libp2p/go-eventbus"
 	"github.com/libp2p/go-libp2p-peerstore/pstoremem"
 	tnet "github.com/libp2p/go-libp2p-testing/net"
 	ma "github.com/multiformats/go-multiaddr"
@@ -39,6 +39,7 @@ type config struct {
 	connectionGater  connmgr.ConnectionGater
 	rcmgr            network.ResourceManager
 	sk               crypto.PrivKey
+	eventBus         event.Bus
 }
 
 // Option is an option that can be passed when constructing a test swarm.
@@ -87,6 +88,12 @@ func OptPeerPrivateKey(sk crypto.PrivKey) Option {
 func DialTimeout(t time.Duration) Option {
 	return func(_ *testing.T, c *config) {
 		c.dialTimeout = t
+	}
+}
+
+func EventBus(b event.Bus) Option {
+	return func(_ *testing.T, c *config) {
+		c.eventBus = b
 	}
 }
 
@@ -142,7 +149,11 @@ func GenSwarm(t *testing.T, opts ...Option) *swarm.Swarm {
 	if cfg.dialTimeout != 0 {
 		swarmOpts = append(swarmOpts, swarm.WithDialTimeout(cfg.dialTimeout))
 	}
-	s, err := swarm.NewSwarm(p.ID, ps, eventbus.NewBus(), swarmOpts...)
+	eventBus := cfg.eventBus
+	if eventBus == nil {
+		eventBus = eventbus.NewBus()
+	}
+	s, err := swarm.NewSwarm(p.ID, ps, eventBus, swarmOpts...)
 	require.NoError(t, err)
 
 	upgrader := GenUpgrader(t, s, tptu.WithConnectionGater(cfg.connectionGater))
