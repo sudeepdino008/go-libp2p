@@ -4,6 +4,8 @@ import (
 	"testing"
 	"time"
 
+	"github.com/libp2p/go-eventbus"
+
 	msmux "github.com/libp2p/go-libp2p/p2p/muxer/muxer-multistream"
 	"github.com/libp2p/go-libp2p/p2p/muxer/yamux"
 	csms "github.com/libp2p/go-libp2p/p2p/net/conn-security-multistream"
@@ -140,7 +142,7 @@ func GenSwarm(t *testing.T, opts ...Option) *swarm.Swarm {
 	if cfg.dialTimeout != 0 {
 		swarmOpts = append(swarmOpts, swarm.WithDialTimeout(cfg.dialTimeout))
 	}
-	s, err := swarm.NewSwarm(p.ID, ps, swarmOpts...)
+	s, err := swarm.NewSwarm(p.ID, ps, eventbus.NewBus(), swarmOpts...)
 	require.NoError(t, err)
 
 	upgrader := GenUpgrader(t, s, tptu.WithConnectionGater(cfg.connectionGater))

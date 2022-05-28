@@ -153,9 +153,8 @@ func (cfg *Config) makeSwarm(eventBus event.Bus) (*swarm.Swarm, error) {
 	if cfg.ResourceManager != nil {
 		opts = append(opts, swarm.WithResourceManager(cfg.ResourceManager))
 	}
-	opts = append(opts, swarm.WithEventBus(eventBus))
 	// TODO: Make the swarm implementation configurable.
-	return swarm.NewSwarm(pid, cfg.Peerstore, opts...)
+	return swarm.NewSwarm(pid, cfg.Peerstore, eventBus, opts...)
 }
 
 func (cfg *Config) addTransports(h host.Host) error {
