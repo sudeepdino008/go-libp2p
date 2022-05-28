@@ -7,6 +7,7 @@ import (
 
 	"github.com/libp2p/go-libp2p-core/connmgr"
 	"github.com/libp2p/go-libp2p-core/crypto"
+	"github.com/libp2p/go-libp2p-core/event"
 	"github.com/libp2p/go-libp2p-core/host"
 	"github.com/libp2p/go-libp2p-core/metrics"
 	"github.com/libp2p/go-libp2p-core/network"
@@ -30,6 +31,7 @@ import (
 	"github.com/libp2p/go-libp2p/p2p/protocol/holepunch"
 
 	logging "github.com/ipfs/go-log/v2"
+	"github.com/libp2p/go-eventbus"
 	ma "github.com/multiformats/go-multiaddr"
 	madns "github.com/multiformats/go-multiaddr-dns"
 )
@@ -106,7 +108,7 @@ type Config struct {
 	HolePunchingOptions []holepunch.Option
 }
 
-func (cfg *Config) makeSwarm() (*swarm.Swarm, error) {
+func (cfg *Config) makeSwarm(eventBus event.Bus) (*swarm.Swarm, error) {
 	if cfg.Peerstore == nil {
 		return nil, fmt.Errorf("no peerstore specified")
 	}
@@ -151,6 +153,7 @@ func (cfg *Config) makeSwarm() (*swarm.Swarm, error) {
 	if cfg.ResourceManager != nil {
 		opts = append(opts, swarm.WithResourceManager(cfg.ResourceManager))
 	}
+	opts = append(opts, swarm.WithEventBus(eventBus))
 	// TODO: Make the swarm implementation configurable.
 	return swarm.NewSwarm(pid, cfg.Peerstore, opts...)
 }
@@ -213,12 +216,14 @@ func (cfg *Config) addTransports(h host.Host) error {
 //
 // This function consumes the config. Do not reuse it (really!).
 func (cfg *Config) NewNode() (host.Host, error) {
-	swrm, err := cfg.makeSwarm()
+	eventBus := eventbus.NewBus()
+	swrm, err := cfg.makeSwarm(eventBus)
 	if err != nil {
 		return nil, err
 	}
 
 	h, err := bhost.NewHost(swrm, &bhost.HostOpts{
+		EventBus:            eventBus,
 		ConnManager:         cfg.ConnManager,
 		AddrsFactory:        cfg.AddrsFactory,
 		NATManager:          cfg.NATManager,
@@ -319,7 +324,7 @@ func (cfg *Config) NewNode() (host.Host, error) {
 			Peerstore:          ps,
 		}
 
-		dialer, err := autoNatCfg.makeSwarm()
+		dialer, err := autoNatCfg.makeSwarm(eventbus.NewBus())
 		if err != nil {
 			h.Close()
 			return nil, err

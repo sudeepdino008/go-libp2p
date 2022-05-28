@@ -112,6 +112,9 @@ var _ host.Host = (*BasicHost)(nil)
 // HostOpts holds options that can be passed to NewHost in order to
 // customize construction of the *BasicHost.
 type HostOpts struct {
+	// EventBus sets the event bus. Will construct a new event bus if omitted.
+	EventBus event.Bus
+
 	// MultistreamMuxer is essential for the *BasicHost and will use a sensible default value if omitted.
 	MultistreamMuxer *msmux.MultistreamMuxer
 
@@ -157,15 +160,17 @@ type HostOpts struct {
 
 // NewHost constructs a new *BasicHost and activates it by attaching its stream and connection handlers to the given inet.Network.
 func NewHost(n network.Network, opts *HostOpts) (*BasicHost, error) {
-	eventBus := eventbus.NewBus()
-	psManager, err := pstoremanager.NewPeerstoreManager(n.Peerstore(), eventBus)
+	if opts == nil {
+		opts = &HostOpts{}
+	}
+	if opts.EventBus == nil {
+		opts.EventBus = eventbus.NewBus()
+	}
+	psManager, err := pstoremanager.NewPeerstoreManager(n.Peerstore(), opts.EventBus)
 	if err != nil {
 		return nil, err
 	}
 	hostCtx, cancel := context.WithCancel(context.Background())
-	if opts == nil {
-		opts = &HostOpts{}
-	}
 
 	h := &BasicHost{
 		network:                 n,
@@ -174,7 +179,7 @@ func NewHost(n network.Network, opts *HostOpts) (*BasicHost, error) {
 		negtimeout:              DefaultNegotiationTimeout,
 		AddrsFactory:            DefaultAddrsFactory,
 		maResolver:              madns.DefaultResolver,
-		eventbus:                eventBus,
+		eventbus:                opts.EventBus,
 		addrChangeChan:          make(chan struct{}, 1),
 		ctx:                     hostCtx,
 		ctxCancel:               cancel,
