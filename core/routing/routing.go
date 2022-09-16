@@ -7,6 +7,7 @@ import (
 
 	ci "github.com/libp2p/go-libp2p/core/crypto"
 	"github.com/libp2p/go-libp2p/core/peer"
+	"github.com/multiformats/go-multihash"
 
 	cid "github.com/ipfs/go-cid"
 )
@@ -34,6 +35,16 @@ type ContentRouting interface {
 	// When count is 0, this method will return an unbounded number of
 	// results.
 	FindProvidersAsync(context.Context, cid.Cid, int) <-chan peer.AddrInfo
+}
+
+// ContentRoutingMany complements ContentRouting intetface allowing providing several keys at
+// the same time, improving performance.
+type ContentRoutingMany interface {
+	// ProvideMany adds the given keys to the content routing system.
+	ProvideMany(ctx context.Context, keys []multihash.Multihash) error
+
+	// Ready checks if the router is ready to start providing keys.
+	Ready() bool
 }
 
 // PeerRouting is a way to find address information about certain peers.
