@@ -17,6 +17,7 @@ https://github.com/libp2p/go-libp2p/issues/1806
 - [🛣️ Milestones](#️-milestones)
   - [2022](#2022)
     - [Early Q4 (October)](#early-q4-october)
+    - [Mid Q4 (November)](#mid-q4-november)
     - [End of Q4 (December)](#end-of-q4-december)
   - [2023](#2023)
     - [Early Q1 (January)](#early-q1-january)
@@ -88,6 +89,11 @@ These projects are parallel workstreams, weighed equally with roadmap items in t
 #### Early Q4 (October)
 - [B.1 ⚡ Early Muxer Negotiation](#1-early-muxer-negotiation)
 
+#### Mid Q4 (November)
+- [***➡️ test-plans/A.2 Interop tests for all existing/developing features***](https://github.com/libp2p/test-plans/blob/b2e52c29d06ea8b6b609f4db400391e65e5d1796/ROADMAP.md#2-interop-test-plans-for-all-existingdeveloping-features)
+- [***➡️ test-plans/A.3 Rock solid libp2p releases***](https://github.com/libp2p/test-plans/blob/b2e52c29d06ea8b6b609f4db400391e65e5d1796/ROADMAP.md#3-rock-solid-libp2p-releases)
+- [***➡️ test-plans/C.1 Benchmarking using nix-builders***](https://github.com/libp2p/test-plans/blob/b2e52c29d06ea8b6b609f4db400391e65e5d1796/ROADMAP.md#1-benchmarking-using-nix-builders)
+
 #### End of Q4 (December)
 - [A.1 📺 WebRTC Browser -> Server](#1-webrtc-for-browser-to-server)
 - [C.1 🧠 Happy Eyeballs](#1-happy-eyeballs)
@@ -106,6 +112,7 @@ These projects are parallel workstreams, weighed equally with roadmap items in t
 #### End of Q1 (March)
 - [B.3 ⚡ 0.5 RTT data optimization (for QUIC)](#3-05-rtt-data-optimization)
   -  🎉 Estimated Project Completion
+- [***➡️ test-plans/C.2 Benchmarking using remote runners***](https://github.com/libp2p/test-plans/blob/b2e52c29d06ea8b6b609f4db400391e65e5d1796/ROADMAP.md#2-benchmarking-using-remote-runners)
 
 ### Up Next
 - [A.2 📺 WebRTC: Browser to Browser](#2-webrtc-browser-to-browser)
