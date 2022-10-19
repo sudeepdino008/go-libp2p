@@ -39,18 +39,13 @@ https://github.com/libp2p/go-libp2p/issues/1806
     - [3. RTT estimation](#3-rtt-estimation)
   - [D. 📊 Comprehensive Metrics](#d--comprehensive-metrics)
   - [E. 📢 Judicious Address Advertisements](#e--judicious-address-advertisements)
-- [libp2p Project Roadmap](#libp2p-project-roadmap)
 
 ## About the Roadmap
 
 ### Vision
-The tenets of the libp2p team are:
-- Security
-  - We strive to ensure that libp2p is reliable & secure for users & applications. We seek to minimize vulnerabilities and act quickly to address issues.
-- Stability
-  - We do not break deployed features and maintain cross version compatibility across libp2p releases.
-- Performance
-  - We aim to make libp2p as performant as possible and strive to ensure comparable performance to widely used protocols on the Internet. We avoid regressions and performance degradations in new releases.
+We, the maintainers, are committed to upholding libp2p's shared core tenets and ensuring go-libp2p is: [**Secure, Stable, Specified, and Performant.**](https://github.com/libp2p/specs/blob/master/ROADMAP.md#core-tenets)
+
+Roadmap items in this document were sourced in part from the [overarching libp2p project roadmap.](https://github.com/libp2p/specs/blob/master/ROADMAP.md)
 
 ### Sections
 This document consists of two sections: [Milestones](#️-milestones) and the [Appendix](#-appendix)
@@ -75,13 +70,14 @@ The "Definition of Done" for projects/sub-projects that involve writing new prot
 Supporting projects (such as testing or benchmarking) may have different criteria.
 
 ## Benchmarking and Testing
-As mentioned in our [vision](#vision), performance and stability are core libp2p tenets. Rigorous benchmarking and testing help us uphold them. Related projects are listed in the [libp2p/test-plans roadmap](https://github.com/libp2p/test-plans/pull/56) and the [testground/testground roadmap](https://github.com/testground/testground/blob/master/ROADMAP.md). Our major priorities in Q4’22 and Q1’23 are:
+As mentioned in our [vision](#vision), performance and stability are core libp2p tenets. Rigorous benchmarking and testing help us uphold them. Related projects are listed in the [libp2p/test-plans roadmap](https://github.com/libp2p/test-plans/blob/master/ROADMAP.md) and the [testground/testground roadmap](https://github.com/testground/testground/blob/master/ROADMAP.md).
+Our major priorities in Q4’22 and Q1’23 are:
 - [interoperability testing](https://github.com/libp2p/test-plans/issues/53) (across implementations & versions and between transports, muxers, & security protocols)
 - performance [benchmark go-libp2p using Testground](https://github.com/testground/testground/pull/1425) (create a benchmark suite to run in CI, create a public performance dashboard, [demonstrate libp2p is able to achieve performance on par with HTTP](https://github.com/libp2p/test-plans/issues/27))
 
-These projects are parallel workstreams, weighed equally with roadmap items in this document. Some efforts like interoperability testing have a higher priority than implementation projects. The go-libp2p co-owns these efforts with the js-libp2p, rust-libp2p, and Testground/IPDX teams.
+These projects are parallel workstreams, weighed equally with roadmap items in this document. Some efforts like interoperability testing have a higher priority than implementation projects. The go-libp2p maintainers co-own these efforts with the js-libp2p, rust-libp2p, and Testground maintainers.
 
-[**Click here to see the shared Q4’22/Q1’23 testing and benchmarking priorities.**](https://github.com/libp2p/test-plans/pull/56)
+[**Click here to see the shared Q4’22/Q1’23 testing and benchmarking priorities.**](https://github.com/libp2p/test-plans/blob/master/ROADMAP.md)
 
 ## 🛣️ Milestones
 ### 2022
@@ -90,9 +86,8 @@ These projects are parallel workstreams, weighed equally with roadmap items in t
 - [B.1 ⚡ Early Muxer Negotiation](#1-early-muxer-negotiation)
 
 #### Mid Q4 (November)
-- [***➡️ test-plans/A.2 Interop tests for all existing/developing features***](https://github.com/libp2p/test-plans/blob/b2e52c29d06ea8b6b609f4db400391e65e5d1796/ROADMAP.md#2-interop-test-plans-for-all-existingdeveloping-features)
-- [***➡️ test-plans/A.3 Rock solid libp2p releases***](https://github.com/libp2p/test-plans/blob/b2e52c29d06ea8b6b609f4db400391e65e5d1796/ROADMAP.md#3-rock-solid-libp2p-releases)
-- [***➡️ test-plans/C.1 Benchmarking using nix-builders***](https://github.com/libp2p/test-plans/blob/b2e52c29d06ea8b6b609f4db400391e65e5d1796/ROADMAP.md#1-benchmarking-using-nix-builders)
+- [***➡️ test-plans/Interop tests for all existing/developing features***](https://github.com/libp2p/test-plans/blob/master/ROADMAP.md#2-interop-test-plans-for-all-existingdeveloping-features)
+- [***➡️ test-plans/Benchmarking using nix-builders***](https://github.com/libp2p/test-plans/blob/master/ROADMAP.md#1-benchmarking-using-nix-builders)
 
 #### End of Q4 (December)
 - [A.1 📺 WebRTC Browser -> Server](#1-webrtc-for-browser-to-server)
@@ -112,11 +107,12 @@ These projects are parallel workstreams, weighed equally with roadmap items in t
 #### End of Q1 (March)
 - [B.3 ⚡ 0.5 RTT data optimization (for QUIC)](#3-05-rtt-data-optimization)
   -  🎉 Estimated Project Completion
-- [***➡️ test-plans/C.2 Benchmarking using remote runners***](https://github.com/libp2p/test-plans/blob/b2e52c29d06ea8b6b609f4db400391e65e5d1796/ROADMAP.md#2-benchmarking-using-remote-runners)
+- [***➡️ test-plans/Benchmarking using remote runners***](https://github.com/libp2p/test-plans/blob/master/ROADMAP.md#2-benchmarking-using-remote-runners)
 
 ### Up Next
 - [A.2 📺 WebRTC: Browser to Browser](#2-webrtc-browser-to-browser)
 - [A.3 📺 WebTransport: Update to new draft versions](#3-webtransport-update-to-new-draft-versions)
+- [***➡️ test-plans/Expansive protocol test coverage***](https://github.com/libp2p/test-plans/blob/master/ROADMAP.md#d-expansive-protocol-test-coverage)
 - [E 📢 Judicious Address Advertisements](#f--judicious-address-advertisements)
 
 ## 📖 Appendix
@@ -180,6 +176,3 @@ Estimation of the expected RTT of a connection based on two nodes’ IP addresse
 **How**: Unfortunately, the AutoNAT protocol can’t be used to probe the reachability of any particular address (especially due to a bug in the go-libp2p implementation deployed years ago). Most likely, we need a second version of the AutoNAT protocol.
 
 Related discussion: [https://github.com/libp2p/go-libp2p/issues/1480](https://github.com/libp2p/go-libp2p/issues/1480)
-
-## libp2p Project Roadmap
-Roadmap items in this document were sourced from our the overarching libp2p project roadmap: https://github.com/libp2p/specs/blob/master/ROADMAP.md
