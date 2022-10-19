@@ -13,7 +13,7 @@ https://github.com/libp2p/go-libp2p/issues/1806
   - [Vision](#vision)
   - [Sections](#sections)
   - [Done criteria](#done-criteria)
-  - [Benchmarking and Testing](#benchmarking-and-testing)
+- [Benchmarking and Testing](#benchmarking-and-testing)
 - [🛣️ Milestones](#️-milestones)
   - [2022](#2022)
     - [Early Q4 (October)](#early-q4-october)
@@ -73,12 +73,14 @@ The "Definition of Done" for projects/sub-projects that involve writing new prot
 
 Supporting projects (such as testing or benchmarking) may have different criteria.
 
-### Benchmarking and Testing
-As mentioned in our [vision](#vision), performance and stability are core libp2p tenets. Rigorous benchmarking and testing help us uphold them. Related projects are listed in the [libp2p/test-plans roadmap](https://github.com/libp2p/test-plans/pull/44) and the [testground/testground roadmap](https://github.com/testground/testground/pull/1484). Our major priorities in Q4’22 and Q1’23 are:
+## Benchmarking and Testing
+As mentioned in our [vision](#vision), performance and stability are core libp2p tenets. Rigorous benchmarking and testing help us uphold them. Related projects are listed in the [libp2p/test-plans roadmap](https://github.com/libp2p/test-plans/pull/56) and the [testground/testground roadmap](https://github.com/testground/testground/blob/master/ROADMAP.md). Our major priorities in Q4’22 and Q1’23 are:
 - [interoperability testing](https://github.com/libp2p/test-plans/issues/53) (across implementations & versions and between transports, muxers, & security protocols)
 - performance [benchmark go-libp2p using Testground](https://github.com/testground/testground/pull/1425) (create a benchmark suite to run in CI, create a public performance dashboard, [demonstrate libp2p is able to achieve performance on par with HTTP](https://github.com/libp2p/test-plans/issues/27))
 
 These projects are parallel workstreams, weighed equally with roadmap items in this document. Some efforts like interoperability testing have a higher priority than implementation projects. The go-libp2p co-owns these efforts with the js-libp2p, rust-libp2p, and Testground/IPDX teams.
+
+[**Click here to see the shared Q4’22/Q1’23 testing and benchmarking priorities.**](https://github.com/libp2p/test-plans/pull/56)
 
 ## 🛣️ Milestones
 ### 2022
