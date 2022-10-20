@@ -1,9 +1,9 @@
 # go-libp2p roadmap Q4’22/Q1’23 <!-- omit in toc -->
 
 ```
-Date: 2022-10-07
-Status: In Progress
-Notes: This document is still in review will may be heavily modified based on stakeholder feedback. Please add any feedback or questions in:
+Date: 2022-10-20
+Status: Accepted
+Notes: Internal go-libp2p stakeholders have aligned on this roadmap. Please add any feedback or questions in:
 https://github.com/libp2p/go-libp2p/issues/1806
 ```
 
@@ -86,7 +86,7 @@ These projects are parallel workstreams, weighed equally with roadmap items in t
 - [B.1 ⚡ Early Muxer Negotiation](#1-early-muxer-negotiation)
 
 #### Mid Q4 (November)
-- [***➡️ test-plans/Interop tests for all existing/developing features***](https://github.com/libp2p/test-plans/blob/master/ROADMAP.md#2-interop-test-plans-for-all-existingdeveloping-features)
+- [***➡️ test-plans/Interop tests for all existing/developing libp2p transports***](https://github.com/libp2p/test-plans/blob/master/ROADMAP.md#2-interop-test-plans-for-all-existingdeveloping-libp2p-transports)
 - [***➡️ test-plans/Benchmarking using nix-builders***](https://github.com/libp2p/test-plans/blob/master/ROADMAP.md#1-benchmarking-using-nix-builders)
 
 #### End of Q4 (December)
