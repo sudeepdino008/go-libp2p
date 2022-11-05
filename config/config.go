@@ -183,16 +183,13 @@ func (cfg *Config) addTransports(h host.Host) error {
 	if err != nil {
 		return err
 	}
-	upgrader, err := tptu.New(secure, muxer, cfg.PSK, cfg.ResourceManager, cfg.ConnectionGater)
-	if err != nil {
-		return err
-	}
 
-	var tpts []transport.Transport
 	fxopts := []fx.Option{
 		fx.NopLogger,
+		fx.Provide(tptu.New), // upgrader
+		fx.Provide(func() sec.SecureMuxer { return secure }),    // for the upgrader
+		fx.Provide(func() network.Multiplexer { return muxer }), // for the upgrader
 		fx.Provide(func() host.Host { return h }),
-		fx.Provide(func() transport.Upgrader { return upgrader }),
 		fx.Provide(func() crypto.PrivKey { return h.Peerstore().PrivKey(h.ID()) }),
 		fx.Provide(func() connmgr.ConnectionGater { return cfg.ConnectionGater }),
 		fx.Provide(func() pnet.PSK { return cfg.PSK }),
@@ -200,14 +197,20 @@ func (cfg *Config) addTransports(h host.Host) error {
 		fx.Provide(func() *madns.Resolver { return cfg.MultiaddrResolver }),
 	}
 	fxopts = append(fxopts, cfg.Transports...)
+
+	var tpts []transport.Transport
 	fxopts = append(fxopts, fx.Invoke(
 		fx.Annotate(
 			func(ts []transport.Transport) { tpts = ts },
 			fx.ParamTags(`group:"transport"`),
 		)),
 	)
+	if cfg.Relay {
+		fxopts = append(fxopts, fx.Invoke(circuitv2.AddTransport))
+	}
 	app := fx.New(fxopts...)
 	if err := app.Err(); err != nil {
+		h.Close()
 		return err
 	}
 	for _, t := range tpts {
@@ -215,14 +218,6 @@ func (cfg *Config) addTransports(h host.Host) error {
 			return err
 		}
 	}
-
-	if cfg.Relay {
-		if err := circuitv2.AddTransport(h, upgrader); err != nil {
-			h.Close()
-			return err
-		}
-	}
-
 	return nil
 }
 
