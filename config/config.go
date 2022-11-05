@@ -31,6 +31,7 @@ import (
 	logging "github.com/ipfs/go-log/v2"
 	ma "github.com/multiformats/go-multiaddr"
 	madns "github.com/multiformats/go-multiaddr-dns"
+	"go.uber.org/fx"
 )
 
 var log = logging.Logger("p2p-config")
@@ -71,7 +72,7 @@ type Config struct {
 
 	PeerKey crypto.PrivKey
 
-	Transports         []TptC
+	Transports         []fx.Option
 	Muxers             []MsMuxC
 	SecurityTransports []MsSecC
 	Insecure           bool
@@ -196,8 +197,27 @@ func (cfg *Config) addTransports(h host.Host) error {
 	if err != nil {
 		return err
 	}
-	tpts, err := makeTransports(h, upgrader, cfg.ConnectionGater, cfg.PSK, cfg.ResourceManager, cfg.MultiaddrResolver, cfg.Transports)
-	if err != nil {
+
+	var tpts []transport.Transport
+	fxopts := []fx.Option{
+		fx.NopLogger,
+		fx.Provide(func() host.Host { return h }),
+		fx.Provide(func() transport.Upgrader { return upgrader }),
+		fx.Provide(func() crypto.PrivKey { return h.Peerstore().PrivKey(h.ID()) }),
+		fx.Provide(func() connmgr.ConnectionGater { return cfg.ConnectionGater }),
+		fx.Provide(func() pnet.PSK { return cfg.PSK }),
+		fx.Provide(func() network.ResourceManager { return cfg.ResourceManager }),
+		fx.Provide(func() *madns.Resolver { return cfg.MultiaddrResolver }),
+	}
+	fxopts = append(fxopts, cfg.Transports...)
+	fxopts = append(fxopts, fx.Invoke(
+		fx.Annotate(
+			func(ts []transport.Transport) { tpts = ts },
+			fx.ParamTags(`group:"transport"`),
+		)),
+	)
+	app := fx.New(fxopts...)
+	if err := app.Err(); err != nil {
 		return err
 	}
 	for _, t := range tpts {
