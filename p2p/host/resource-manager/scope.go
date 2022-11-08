@@ -265,6 +265,8 @@ func (rc *resources) addConns(incount, outcount, fdcount int) error {
 	}
 
 	if connLimit := rc.limit.GetConnTotalLimit(); rc.nconnsIn+incount+rc.nconnsOut+outcount > connLimit {
+	   fmt.Println("oh godddd")
+		fmt.Printf("%d %d %d %d %d\n", rc.nconnsIn, incount, rc.nconnsOut, outcount, connLimit)
 		return &errStreamOrConnLimitExceeded{
 			current:   rc.nconnsIn + rc.nconnsOut,
 			attempted: incount + outcount,
